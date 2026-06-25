@@ -1,5 +1,5 @@
 const template = await fetch(
-  "https://www.foxsports.com/soccer/fifa-world-cup/schedule",
+  "https://www.foxsports.com/soccer/fifa-world-cup/schedule"
 )
   .then((r) => r.text())
   .then((html) => {
@@ -44,7 +44,6 @@ document.body.appendChild(template.content.cloneNode(true));
 document.head.append(...styleNodes);
 
 // Remove the betting odds because I DO NOT CARE.
-console.log("remove the stupid odds");
 document.querySelectorAll("th.cell-odds,td.cell-odds").forEach((cell) => {
   cell.remove();
 });
@@ -75,4 +74,18 @@ document.querySelector(".scores-scorechips-container").style.marginTop = 0;
 const top = 0;
 document.querySelectorAll(".table-title").forEach((node) => {
   node.style.top = top;
+});
+
+document.querySelectorAll(".cell-text.broadcast span.table-result").forEach(node => {
+  const [,hourStr,minuteStr,ampm] = node.textContent.match(/(\d{1,2}):(\d{2})([AP]M)/)??[];
+  if(hourStr && ampm) {
+    const utcHour = +hourStr + (ampm === "PM" ? 12 : 0)
+
+    const time = new Date();
+    time.setUTCHours(utcHour);
+
+    const hour = time.getHours() > 12 ? time.getHours() - 12 : time.getHours();
+
+    node.textContent = `${hour}:${minuteStr}${time.getHours() > 11 ? 'PM':'AM'}`;
+  }
 });
